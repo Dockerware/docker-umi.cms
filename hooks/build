@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+TAG=$(echo $IMAGE_NAME| cut -d':' -f 2)
+
+echo "------ HOOK START - BUILD -------"
+
+docker build --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
+             --build-arg VCS_REF=`git rev-parse --short HEAD` \
+             -t $IMAGE_NAME -f Dockerfile-$TAG .
+
+echo "------ HOOK END - BUILD -------"
