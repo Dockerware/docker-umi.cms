@@ -1,0 +1,15 @@
+sudo: required
+dist: trusty
+
+services:
+  - docker
+
+addons:
+  apt:
+    sources:
+    - debian-sid # Grab ShellCheck from the Debian repo
+    packages:
+    - shellcheck
+
+script:
+  - make test
