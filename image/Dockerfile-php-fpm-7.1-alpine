@@ -3,15 +3,6 @@ FROM php:7.1-fpm-alpine
 ARG BUILD_DATE
 ARG VCS_REF
 
-LABEL org.label-schema.build-date=$BUILD_DATE \
-      org.label-schema.vcs-url="https://github.com/Dockerware/docker-umi.cms.git" \
-      org.label-schema.vcs-ref=$VCS_REF \
-      org.label-schema.schema-version="1.0" \
-      org.label-schema.vendor="DockerWare" \
-      org.label-schema.name="docker-umi.cms" \
-      org.label-schema.description="Docker Community Image packaging for UMI.CMS" \
-      org.label-schema.url="https://github.com/Dockerware/docker-umi.cms"
-
 RUN set -ex \
     
     && apk add --update \
@@ -62,3 +53,12 @@ RUN set -ex \
 CMD ["php-fpm"]
 
 EXPOSE 9000
+
+LABEL org.label-schema.build-date=$BUILD_DATE \
+      org.label-schema.vcs-url="https://github.com/Dockerware/docker-umi.cms.git" \
+      org.label-schema.vcs-ref=$VCS_REF \
+      org.label-schema.schema-version="1.0" \
+      org.label-schema.vendor="DockerWare" \
+      org.label-schema.name="docker-umi.cms" \
+      org.label-schema.description="Docker Community Image packaging for UMI.CMS" \
+      org.label-schema.url="https://github.com/Dockerware/docker-umi.cms"
