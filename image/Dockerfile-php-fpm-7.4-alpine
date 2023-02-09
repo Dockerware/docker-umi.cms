@@ -1,0 +1,57 @@
+FROM php:7.4-fpm-alpine
+
+RUN set -ex \
+
+    # Update
+    && apk add --update \
+
+    # Install dependencies
+    && apk add --no-cache --virtual .deps \
+           zlib \
+           libzip \
+           libpng \
+           libjpeg-turbo \
+           freetype \
+           libxslt \
+
+    # Install dev dependencies
+    && apk add --no-cache --virtual .build-deps \
+           zlib-dev \
+           libzip-dev \
+           libpng-dev \
+           libjpeg-turbo-dev \
+           freetype-dev \
+           libxslt-dev \
+
+    # Configure
+    && docker-php-ext-configure gd \
+         --with-freetype \
+         --with-jpeg \
+
+    # Build and install
+    && docker-php-ext-install -j$(nproc) \
+         gd \
+         zip \
+         xsl \
+         mysqli \
+         pdo_mysql \
+
+    # Clean
+    && rm -rf /tmp/* \
+    && apk del --purge .build-deps
+
+CMD ["php-fpm"]
+
+EXPOSE 9000
+
+ARG BUILD_DATE
+ARG VCS_REF
+
+LABEL org.label-schema.build-date=$BUILD_DATE \
+      org.label-schema.vcs-url="https://github.com/Dockerware/docker-umi.cms.git" \
+      org.label-schema.vcs-ref=$VCS_REF \
+      org.label-schema.schema-version="1.0" \
+      org.label-schema.vendor="DockerWare" \
+      org.label-schema.name="docker-umi.cms" \
+      org.label-schema.description="Docker Community Image packaging for UMI.CMS" \
+      org.label-schema.url="https://github.com/Dockerware/docker-umi.cms"

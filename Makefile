@@ -1,5 +1,5 @@
 duild:
-	cd image && IMAGE_NAME=php-fpm-7.1-alpine ../hooks/build
+	cd image && IMAGE_NAME=php-fpm-7.4-alpine ../hooks/build
 
 .PHONY: test
 test: test-static-analysis test-environment
