@@ -33,6 +33,7 @@ RUN set -ex \
            libzip \
            libpng \
            libjpeg-turbo \
+           libwebp \
            freetype \
            libxslt \
 
@@ -42,6 +43,7 @@ RUN set -ex \
            libzip-dev \
            libpng-dev \
            libjpeg-turbo-dev \
+           libwebp-dev \
            freetype-dev \
            libxslt-dev \
 
@@ -49,6 +51,7 @@ RUN set -ex \
     && docker-php-ext-configure gd \
          --with-freetype \
          --with-jpeg \
+         --with-webp \
 
     # Build and install
     && docker-php-ext-install -j$(nproc) \
