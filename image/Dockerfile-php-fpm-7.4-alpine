@@ -1,0 +1,87 @@
+FROM php:7.4-fpm-alpine as builder
+
+RUN set -ex \
+
+    # Update
+    && apk add --update \
+
+    # Install build dependencies
+    && apk add --no-cache --virtual .build-tools \
+           autoconf \
+           make \
+           gcc \
+           g++ \
+
+    # Install dev dependencies
+    && apk add --no-cache --virtual .build-deps \
+           zstd-dev \
+
+    && pecl install igbinary \
+    && pecl install --configureoptions 'enable-redis-igbinary="yes" enable-redis-lzf="yes" enable-redis-zstd="yes"' redis
+
+FROM php:7.4-fpm-alpine
+
+COPY --from=builder /usr/local/lib/php/extensions/no-debug-non-zts-20190902/* /usr/local/lib/php/extensions/no-debug-non-zts-20190902
+RUN set -ex \
+
+    # Update
+    && apk add --update \
+
+    # Install dependencies
+    && apk add --no-cache --virtual .deps \
+           zlib \
+           libzip \
+           libpng \
+           libjpeg-turbo \
+           libwebp \
+           freetype \
+           libxslt \
+
+    # Install dev dependencies
+    && apk add --no-cache --virtual .build-deps \
+           zlib-dev \
+           libzip-dev \
+           libpng-dev \
+           libjpeg-turbo-dev \
+           libwebp-dev \
+           freetype-dev \
+           libxslt-dev \
+
+    # Configure
+    && docker-php-ext-configure gd \
+         --with-freetype \
+         --with-jpeg \
+         --with-webp \
+
+    # Build and install
+    && docker-php-ext-install -j$(nproc) \
+         gd \
+         zip \
+         xsl \
+         mysqli \
+         pdo_mysql \
+
+    # Enable pecl-built extensions
+    && docker-php-ext-enable \
+         igbinary \
+         redis \
+
+    # Clean
+    && rm -rf /tmp/* \
+    && apk del --purge .build-deps
+
+CMD ["php-fpm"]
+
+EXPOSE 9000
+
+ARG BUILD_DATE
+ARG VCS_REF
+
+LABEL org.label-schema.build-date=$BUILD_DATE \
+      org.label-schema.vcs-url="https://github.com/Dockerware/docker-umi.cms.git" \
+      org.label-schema.vcs-ref=$VCS_REF \
+      org.label-schema.schema-version="1.0" \
+      org.label-schema.vendor="DockerWare" \
+      org.label-schema.name="docker-umi.cms" \
+      org.label-schema.description="Docker Community Image packaging for UMI.CMS" \
+      org.label-schema.url="https://github.com/Dockerware/docker-umi.cms"
