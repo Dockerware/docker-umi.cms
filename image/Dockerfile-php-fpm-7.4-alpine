@@ -15,9 +15,32 @@ RUN set -ex \
     # Install dev dependencies
     && apk add --no-cache --virtual .build-deps \
            zstd-dev \
+           zlib-dev \
+           libevent-dev \
+           libmemcached-dev \
 
     && pecl install igbinary \
-    && pecl install --configureoptions 'enable-redis-igbinary="yes" enable-redis-lzf="yes" enable-redis-zstd="yes"' redis
+    && pecl install \
+        --configureoptions '\
+            with-libmemcached-dir="/usr" \
+            with-zlib-dir="/usr" \
+            with-system-fastlz="no" \
+            enable-memcached-igbinary="yes" \
+            enable-memcached-msgpack="no" \
+            enable-memcached-json="yes" \
+            enable-memcached-protocol="no" \
+            enable-memcached-sasl="yes" \
+            enable-memcached-session="yes"\
+            '\
+        memcached \
+
+    && pecl install \
+        --configureoptions '\
+            enable-redis-igbinary="yes" \
+            enable-redis-lzf="yes" \
+            enable-redis-zstd="yes"\
+            '\
+        redis
 
 FROM php:7.4-fpm-alpine
 
@@ -36,6 +59,7 @@ RUN set -ex \
            libwebp \
            freetype \
            libxslt \
+           libmemcached \
 
     # Install dev dependencies
     && apk add --no-cache --virtual .build-deps \
@@ -64,6 +88,7 @@ RUN set -ex \
     # Enable pecl-built extensions
     && docker-php-ext-enable \
          igbinary \
+         memcached \
          redis \
 
     # Clean
